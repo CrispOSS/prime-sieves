@@ -10,7 +10,7 @@ The following summarizes the prime sieve generation:
 
 The following diagram depicts a general object hierarchy and structure of a concurrent prime sieve generator in this example:
 
-![Prime Generator](figs/PrimeSieves.svg)
+![Prime Generator](figs/PrimeSieves.svg?raw=true)
 
 [1]: http://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
 [2]: https://github.com/CrispOSS/abs-api-parent
