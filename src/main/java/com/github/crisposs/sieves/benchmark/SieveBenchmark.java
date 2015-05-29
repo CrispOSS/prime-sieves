@@ -1,5 +1,6 @@
 package com.github.crisposs.sieves.benchmark;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -8,30 +9,33 @@ import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
 import com.github.crisposs.sieves.Main;
 
-@BenchmarkMode(Mode.Throughput)
+@BenchmarkMode(Mode.AverageTime)
 @Fork(value = 1)
 @Warmup(iterations = 1, time = 32, timeUnit = TimeUnit.MILLISECONDS)
-@Measurement(iterations = 16, time = 1, timeUnit = TimeUnit.SECONDS)
-@Timeout(time = 1, timeUnit = TimeUnit.SECONDS)
-@Threads(value = 128)
+@Measurement(iterations = 4, time = 1, timeUnit = TimeUnit.SECONDS)
+@Timeout(time = SieveBenchmark.TIMEOUT, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Benchmark)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class SieveBenchmark {
 
-  @Param({"10000", "50000", "1000000"})
+  public static final int TIMEOUT = 20;
+  public static final Duration DURATION = Duration.ofSeconds(TIMEOUT);
+
+  @Param({"1000", "10000", "100000", "500000"})
   public long N;
 
   @Benchmark
   public Collection<Long> sieve() throws Exception {
-    Main main = new Main(N);
+    Main main = new Main(N, DURATION);
     return main.primes();
   }
 

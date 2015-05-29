@@ -47,6 +47,7 @@ public class SieveMaster implements Sieve {
   public void done(List<Long> nums) {
     Collections.sort(nums);
     nums.forEach(n -> collector.collect(n));
+    // System.out.println(collector.last());
     sieve();
   }
 
@@ -75,7 +76,9 @@ public class SieveMaster implements Sieve {
   }
 
   private List<Range> breakRange(Range range) {
-    final int size = 5000;
+    final Double order = Double.valueOf(Math.log10(range.to().doubleValue()));
+    final int size = range.to().intValue() / order.intValue();
+    // System.out.println("bucket size: " + size);
     if (range.to() <= size) {
       return Collections.singletonList(range);
     }
@@ -83,10 +86,11 @@ public class SieveMaster implements Sieve {
     long from = range.from();
     do {
       long to = (from + size - 1 > range.to()) ? range.to() : from + size - 1;
-      Range r = new Range(from, to);
+      Range r = new Range(from, to, range.max());
       ranges.add(r);
       from = r.to() + 1;
     } while (from < range.to());
+    System.out.println("ranges: " + ranges.size());
     return ranges;
   }
 

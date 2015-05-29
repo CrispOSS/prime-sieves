@@ -6,19 +6,23 @@ public class Range implements Serializable, Comparable<Range> {
 
   private static final long serialVersionUID = 1L;
 
-  public static Range of(Long from, Long to) {
-    return new Range(from, to);
+  public static Range of(Long from, Long to, Long max) {
+    return new Range(from, to, max);
   }
 
   private final Long from;
   private final Long to;
+  private final Long max;
+  private final long maxSqrt;
 
-  public Range(Long from, Long to) {
+  public Range(Long from, Long to, Long max) {
     if (from > to) {
       throw new IllegalArgumentException("Range is not valid: [" + from + "," + to + "]");
     }
     this.from = from;
     this.to = to;
+    this.max = max;
+    this.maxSqrt = Double.valueOf(Math.sqrt(max.doubleValue())).longValue() + 1;
   }
 
   public Long from() {
@@ -35,6 +39,14 @@ public class Range implements Serializable, Comparable<Range> {
 
   public boolean contains(Long n) {
     return from <= n && n <= to;
+  }
+
+  public long maxSqrt() {
+    return maxSqrt;
+  }
+
+  public Long max() {
+    return max;
   }
 
   @Override
