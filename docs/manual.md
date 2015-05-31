@@ -95,7 +95,70 @@ Runnable msg = () -> w.sieve();
 send(w, msg);
 ```
 
-in which `send(Object, Object)` is expected to be a method that semantically provides Approach 2 explained above to deliver the message and execute it.
+in which `send(Object, Object)` is expected to be a method that semantically provides Approach 2 explained above to deliver the message and execute it. Now the question is where `send(Object, Object)` can come from?
+
+Next, let us zoom at `SieveWorker`. A `SieveWorker` is also a `Sieve` implementation a sketch of which can be presented as:
+
+```
+Sieve my range for prime numbers
+(W) Reply to the "sender" with generated prime numbers
+```
+
+When a sieve worker has generated the prime numbers in its own range, it is expected to reply back to the master. We designed `void done(List<Long>)` for this purpose in `Sieve`. We can rewrite `(W)` from above as:
+
+```java
+List<Long> primes = // compute primes in my range
+(W) Reply to master (sender) with message with invoking `done(primes)`
+```
+
+which means as before, we need to *send a message* but the difference here is that this is a *reply message*. We can rewrite then as:
+
+```java
+List<Long> primes = // compute primes in my range
+Runnable replyMsg = () -> {
+  (S) Sieve sender = sender();
+  s.done(primes);
+};
+(R) reply(replyMsg);
+```
+
+We can *functionally* define `reply` in `(R)` as:
+
+```
+reply = send(sender(), Object)
+```
+
+in which `sender()` in `(S)` refers to the *sender* object of the current message being processed by `this` object.
+
+Naturally, we need to sketch the implementation of `done(List<Long>)` in `SieveMaster` as it will be the main receive of done messages:
+
+```java
+void done(List<Long> primes) {
+  Store the primes
+  sieve();
+}
+```
+
+Simply, after each receipt of `done`, the master stores the newly generated primes and sieve again to see if there are still sieve workers to do their computation.
+
+We summarize the requirements that we have to be able to design this example following both object-oriented design and asynchronous computation:
+
+* `send(Object o, Object msg)` sends a message `msg` to an object `o` in an asynchronous way
+* `sender()` refers to the sender object of the currently being processed message in `this` object
+* `reply(Object msg)` send a message `msg` as a reply to the `sender()` of the processed message in `this` object
+
+This is where we mix object-oriented principles with Actor model brought by ABS API. To add the above capabilities to our example, we simple change `Sieve` interface as:
+
+```java
+interface Sieve extends Actor {
+}
+```
+
+to extend `abs.api.Actor` interface. Now, all implementations of `Sieve` interface have access to the methods we draw as expectations for this example.
+
+## Conclusion
+
+TODO: Generalize how we mixed the original object-oriented principles and Actor model principles implemented in ABS API through Java 8.
 
 [1]: http://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
 [2]: https://github.com/CrispOSS/abs-api-parent
