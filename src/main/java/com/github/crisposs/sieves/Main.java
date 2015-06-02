@@ -26,20 +26,12 @@ public class Main {
     Thread.setDefaultUncaughtExceptionHandler((thread, x) -> {
       System.err.println("Thread [" + thread + "]: " + x.getMessage());
     });
-    ThreadFactory tf = r -> new ContextThread(r);
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(8, tf);
-    Configuration configuration = Configuration.newConfiguration().withExecutorService(executor)
-        .withInbox(new QueueInbox(executor)).build();
+//    ThreadFactory tf = r -> new ContextThread(r);
+//    ScheduledExecutorService executor = Executors.newScheduledThreadPool(8, tf);
+//    Configuration configuration = Configuration.newConfiguration().withExecutorService(executor)
+//        .withInbox(new QueueInbox(executor)).build();
+    Configuration configuration = Configuration.newConfiguration().build();
     Context context = new LocalContext(configuration);
-    executor.schedule(shutdown(context), duration.getSeconds(), TimeUnit.SECONDS);
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      try {
-        context.stop();
-      } catch (Exception e) {
-        System.err.println("Context Shutdown: " + e.getMessage());
-      }
-      executor.shutdownNow();
-    } , "executors"));
     Range range = new Range(1L, N, N);
     SieveMaster master = new SieveMaster(range, collector);
     context.newActor("master", master);
@@ -53,7 +45,7 @@ public class Main {
       assert result.get();
       Long lastPrime = master.lastPrime();
       Instant end = Instant.now();
-      System.out.println("Took " + Duration.between(start, end).toMillis() + "(ms): " + lastPrime);
+//      System.out.println("Took " + Duration.between(start, end).toMillis() + "(ms): " + lastPrime);
       context.stop();
     } catch (InterruptedException e) {
     } catch (ExecutionException e) {
@@ -76,7 +68,7 @@ public class Main {
   }
 
   public static void main(String[] args) {
-    Long N = 500_000L;
+    Long N = 50_000_000L;
     if (args.length > 0) {
       N = Long.parseLong(args[0]);
     }

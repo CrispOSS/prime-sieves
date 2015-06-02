@@ -1,10 +1,10 @@
 package com.github.crisposs.sieves;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -61,32 +61,30 @@ public class SieveWorker implements Sieve {
     if (primes.isEmpty()) {
       return findPrimes(to);
     }
-    final List<Long> myPrimes = new ArrayList<>();
-    final boolean fromEven = from % 2 == 0;
-    final boolean toEven = to % 2 == 0;
-    final long start = fromEven ? from + 1 : from;
-    final long end = toEven ? to + 1 : to;
-    final List<Long> numbers = oddNumbers(start, end);
-    for (final long l : numbers) {
-      if (isPrime(primes, l)) {
-        myPrimes.add(l);
+    Set<Long> nonPrimes = new ConcurrentSkipListSet<>();
+    oddNumbers(from, to).parallel().forEach(l -> {
+      if (!nonPrimes.contains(l)) {
+        for (long p : primes) {
+          if (l % p == 0) {
+            nonPrimes.add(l);
+          }
+          long m = p * l;
+          if (m <= to) {
+            nonPrimes.add(m);
+          } else {
+            break;
+          }
+        }
       }
-    }
+    });
+    List<Long> myPrimes = oddNumbers(from, to).boxed().collect(Collectors.toList());
+    myPrimes.removeAll(nonPrimes);
     return myPrimes;
-  }
-
-  private boolean isPrime(final List<Long> primes, long n) {
-    for (Long p : primes) {
-      if (n % p == 0) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private List<Long> findPrimes(Long n) {
     final Long N = longSqrt(n);
-    List<Long> numbers = oddNumbers(2, N);
+    List<Long> numbers = oddNumbers(2, N).boxed().collect(Collectors.toList());
     Set<Long> nonPrimes = new HashSet<>();
     for (Long l : numbers) {
       if (nonPrimes.contains(l)) {
@@ -100,9 +98,8 @@ public class SieveWorker implements Sieve {
     return numbers;
   }
 
-  private List<Long> oddNumbers(final long start, final long end) {
-    return LongStream.rangeClosed(start, end).filter(x -> x % 2 != 0).sorted().boxed()
-        .collect(Collectors.toList());
+  private LongStream oddNumbers(final long start, final long end) {
+    return LongStream.rangeClosed(start, end).filter(x -> x % 2 != 0);
   }
 
   private long longSqrt(Long n) {

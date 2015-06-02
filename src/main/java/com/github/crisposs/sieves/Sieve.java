@@ -8,8 +8,7 @@ public interface Sieve extends Actor {
 
   void sieve();
 
+  void done(List<Long> primes);
+
   Long last();
-
-  void done(List<Long> n);
-
 }

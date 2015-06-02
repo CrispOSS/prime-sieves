@@ -27,10 +27,10 @@ import com.github.crisposs.sieves.Main;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class SieveBenchmark {
 
-  public static final int TIMEOUT = 20;
+  public static final int TIMEOUT = 2;
   public static final Duration DURATION = Duration.ofSeconds(TIMEOUT);
 
-  @Param({"1000", "10000", "100000", "500000"})
+  @Param({"500000", "1000000", "2000000", "4000000", "8000000"})
   public long N;
 
   @Benchmark
