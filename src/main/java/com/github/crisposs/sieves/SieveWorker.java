@@ -1,6 +1,7 @@
 package com.github.crisposs.sieves;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,9 +27,9 @@ public class SieveWorker implements Sieve {
   @Override
   public void sieve() {
     final Long last = last();
-    final List<Long> primes = collector.get().collect(Collectors.toList());
+    final List<Long> primes = new ArrayList<>(collector.get());
+    Sieve s = sender();
     Runnable msg = () -> {
-      Sieve s = sender();
       s.done(primes);
     };
     if (last != null && last != 0 && range.from() <= last) {

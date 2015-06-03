@@ -1,22 +1,23 @@
 package com.github.crisposs.sieves;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import abs.api.Actor;
-
-public interface Collector extends Actor, Supplier<Stream<Long>> {
+public interface Collector extends Supplier<Collection<Long>> {
 
   void collect(Long n);
 
   default Long last() {
-    Stream<Long> s = get();
-    if (s.count() == 0) {
+    Collection<Long> s = get();
+    if (s.isEmpty()) {
       return null;
     }
-    List<Long> list = s.sorted().collect(Collectors.toList());
+    if (s instanceof List) {
+      return ((List<Long>) s).get(s.size() - 1);
+    }
+    List<Long> list = new ArrayList<>(s);
     return list.get(list.size() - 1);
   }
 

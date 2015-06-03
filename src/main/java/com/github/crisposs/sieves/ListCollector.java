@@ -1,13 +1,11 @@
 package com.github.crisposs.sieves;
 
+import java.util.Collection;
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 public class ListCollector implements Collector {
-
-  private static final long serialVersionUID = 1L;
 
   private NavigableSet<Long> collection = new ConcurrentSkipListSet<>();
   private final AtomicLong last = new AtomicLong();
@@ -20,8 +18,8 @@ public class ListCollector implements Collector {
   }
 
   @Override
-  public Stream<Long> get() {
-    return collection.stream().sorted();
+  public Collection<Long> get() {
+    return collection;
   }
 
   @Override

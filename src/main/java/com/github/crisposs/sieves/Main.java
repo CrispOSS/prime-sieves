@@ -5,18 +5,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import abs.api.Configuration;
 import abs.api.Context;
-import abs.api.ContextThread;
 import abs.api.LocalContext;
-import abs.api.QueueInbox;
 
 public class Main {
 
@@ -26,10 +19,6 @@ public class Main {
     Thread.setDefaultUncaughtExceptionHandler((thread, x) -> {
       System.err.println("Thread [" + thread + "]: " + x.getMessage());
     });
-//    ThreadFactory tf = r -> new ContextThread(r);
-//    ScheduledExecutorService executor = Executors.newScheduledThreadPool(8, tf);
-//    Configuration configuration = Configuration.newConfiguration().withExecutorService(executor)
-//        .withInbox(new QueueInbox(executor)).build();
     Configuration configuration = Configuration.newConfiguration().build();
     Context context = new LocalContext(configuration);
     Range range = new Range(1L, N, N);
@@ -45,7 +34,7 @@ public class Main {
       assert result.get();
       Long lastPrime = master.lastPrime();
       Instant end = Instant.now();
-//      System.out.println("Took " + Duration.between(start, end).toMillis() + "(ms): " + lastPrime);
+      System.out.println("Took " + Duration.between(start, end).toMillis() + "(ms): " + lastPrime);
       context.stop();
     } catch (InterruptedException e) {
     } catch (ExecutionException e) {
@@ -53,22 +42,12 @@ public class Main {
     }
   }
 
-  private Runnable shutdown(Context context) {
-    Runnable r = () -> {
-      try {
-        context.stop();
-      } catch (Exception e) {
-      }
-    };
-    return r;
-  }
-
   public Collection<Long> primes() {
-    return collector.get().collect(Collectors.toList());
+    return collector.get();
   }
 
   public static void main(String[] args) {
-    Long N = 50_000_000L;
+    Long N = 5000_000L;
     if (args.length > 0) {
       N = Long.parseLong(args[0]);
     }
