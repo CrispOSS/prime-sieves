@@ -154,7 +154,9 @@ interface Sieve extends Actor {
 }
 ```
 
-to extend `abs.api.Actor` interface. Now, all implementations of `Sieve` interface have access to the methods we draw as expectations for this example.
+to extend `abs.api.Actor` interface. Now, all implementations of `Sieve` interface have access to the methods we draw as expectations for this example. Applying the actor model API to this sieve example as explained above can be depicted conceptually as:
+
+![Prime Generator Control Flow](figs/PrimeSievesControlFlow.jpg)
 
 ## Conclusion
 
