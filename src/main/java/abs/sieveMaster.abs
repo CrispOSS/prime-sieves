@@ -3,7 +3,8 @@ class SieveMaster (URI name, Collector collector, Range range, List<Range> range
   {
     this.ranges = breakRange(range);
  
-	/*the code that follows is a recursive while and it's scary, because it requires removing all elements from a list executing the code and putting them back*/
+	/*the code that follows is a recursive while and it's scary, 
+	because it requires removing all elements from a list executing the code and putting them back*/
 	
 	for (Range r : ranges) {
       SieveWorker w = new SieveWorker(r, collector, this);
