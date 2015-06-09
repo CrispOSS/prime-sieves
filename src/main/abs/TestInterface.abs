@@ -1,0 +1,4 @@
+module TestInterface;
+
+interface TestInterface {
+}

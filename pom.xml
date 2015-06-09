@@ -15,11 +15,25 @@
 		<benchmark.jar.name>prime-sieves-bench</benchmark.jar.name>
 		<version.abs-api>0.9.0-SNAPSHOT</version.abs-api>
 		<version.junit>4.12</version.junit>
-		<version.jmh>1.10-SNAPSHOT</version.jmh>
+		<version.jmh>1.9.3</version.jmh>
 	</properties>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>com.github.crisposs</groupId>
+				<artifactId>jabsc-maven-plugin</artifactId>
+				<version>1.0.0-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>abs-compile</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>jabsc</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
