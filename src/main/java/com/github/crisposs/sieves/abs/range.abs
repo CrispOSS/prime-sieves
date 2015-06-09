@@ -1,0 +1,72 @@
+class Range (Long from, Long to) {
+
+  private static final long serialVersionUID = 1L;
+
+  public static Range of(Long from, Long to) {
+    return new Range(from, to);
+  }
+
+  {
+    if (from > to) {
+      throw new IllegalArgumentException("Range is not valid: [" + from + "," + to + "]");
+    }
+  }
+
+   Long from() {
+    return from;
+  }
+
+   Long to() {
+    return to;
+  }
+
+  Long length() {
+    return to - from + 1;
+  }
+
+  Boolean contains(Long n) {
+    return from <= n && n <= to;
+  }
+
+  String toString() {
+    return "(" + from + "," + to + ")";
+  }
+
+  Int compareTo(Range o) {
+    int fc = from.compareTo(o.from);
+    int tc = to.compareTo(o.to);
+    if (fc - tc == 0) {
+      return 0;
+    }
+    if (fc == 0) {
+      return tc;
+    }
+    if (tc == 0) {
+      return fc;
+    }
+    if (to < o.from) {
+      return -1;
+    }
+    if (from > o.to) {
+      return 1;
+    }
+    if (from < o.from && to > o.to) {
+      return 1;
+    }
+    return 0;
+  }
+
+  Boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof Range == false) {
+      return false;
+    }
+    return compareTo((Range) obj) == 0;
+  }
+
+}

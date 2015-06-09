@@ -1,0 +1,10 @@
+interface Sieve{
+	Unit sieve();
+	
+	Long last();
+	
+	void done(List<Long> n);
+	
+}
+
+

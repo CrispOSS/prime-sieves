@@ -1,0 +1,31 @@
+class SieveWorker (Collector collector, Range range, Sieve s) implements Sieve {
+
+
+  {
+    this.name = URI.create(NS + range);
+  }
+
+  Unit sieve() {
+    Long last = last();
+    List<Long> primes = collector.get().collect(Collectors.toList());
+    s!done(primes);
+    
+  }
+
+  @Override
+  public Long last() {
+    return collector.last();
+  }
+
+  @Override
+  public void done(List<Long> n) {}
+
+  @Override
+  public String toString() {
+    return name().toString();
+  }
+
+  @Override
+  public URI name() {
+    return name;
+  }

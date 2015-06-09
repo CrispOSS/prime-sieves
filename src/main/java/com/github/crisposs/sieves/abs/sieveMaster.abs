@@ -1,0 +1,56 @@
+class SieveMaster (URI name, Collector collector, Range range, List<Range> ranges, Queue<SieveWorker> workers) implements Sieve {
+
+  {
+    this.ranges = breakRange(range);
+ 
+	/*the code that follows is a recursive while and it's scary, because it requires removing all elements from a list executing the code and putting them back*/
+	
+	for (Range r : ranges) {
+      SieveWorker w = new SieveWorker(r, collector, this);
+      workers.offer(w);
+    }
+  }
+
+  Unit sieve() {
+    SieveWorker w = workers.poll();
+    if (w == null) {
+      return;
+    }
+    w!sieve();
+  }
+
+  Unit done(List<Long> nums) {
+    /*collect numbers*/
+    this.sieve();
+  }
+
+  Long last() {
+    return collector.last();
+  }
+
+  URI name() {
+    return name;
+  }
+
+  Long lastPrime() {
+    return last();
+  }
+
+  List<Range> breakRange(Range range) {
+ 	
+    Int size = 5000;
+    if (range.to() <= size) {
+      return Collections.singletonList(range);
+    }
+    List<Range> ranges = new ArrayList<>();
+    long from = range.from();
+    do {
+      long to = (from + size - 1 > range.to()) ? range.to() : from + size - 1;
+      Range r = new Range(from, to);
+      ranges.add(r);
+      from = r.to() + 1;
+    } while (from < range.to());
+    return ranges;
+  }
+
+}

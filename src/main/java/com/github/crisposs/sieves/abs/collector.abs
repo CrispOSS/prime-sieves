@@ -1,0 +1,10 @@
+interface Collector {
+
+  Unit collect(Long n);
+
+  Long last() {
+		/*return last prime*/
+  }
+
+}
+

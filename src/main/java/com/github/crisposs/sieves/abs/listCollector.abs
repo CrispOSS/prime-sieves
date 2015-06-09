@@ -1,0 +1,21 @@
+class ListCollector implements Collector {
+
+ {
+  NavigableSet<Long> collection = new ConcurrentSkipListSet<>();
+  AtomicLong last = new AtomicLong();
+}
+  Unit collect(Long n) {
+    if (collection.add(n)) {
+      last.getAndSet(collection.last());
+    }
+  }
+
+  Stream<Long> get() {
+    return collection.stream().sorted();
+  }
+
+  Long last() {
+    return last.get();
+  }
+
+}
