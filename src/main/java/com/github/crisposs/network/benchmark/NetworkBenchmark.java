@@ -1,7 +1,7 @@
-package com.github.crisposs.sieves.benchmark;
+package com.github.crisposs.network.benchmark;
 
-import java.time.Duration;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
@@ -16,27 +16,28 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
-import com.github.crisposs.sieves.Main;
+import com.github.crisposs.network.Networks;
 
 @BenchmarkMode(Mode.AverageTime)
 @Fork(value = 1)
 @Warmup(iterations = 1, time = 32, timeUnit = TimeUnit.MILLISECONDS)
-@Measurement(iterations = 4, time = 1, timeUnit = TimeUnit.SECONDS)
-@Timeout(time = SieveBenchmark.TIMEOUT, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public class SieveBenchmark {
+@Timeout(time = 1, timeUnit = TimeUnit.SECONDS)
+public class NetworkBenchmark {
 
-  public static final int TIMEOUT = 2;
-  public static final Duration DURATION = Duration.ofSeconds(TIMEOUT);
-
-  @Param({"500000", "5000000"})
-  public long N;
+  @Param({"500", "5000"})
+  public int size;
 
   @Benchmark
-  public Collection<Long> sieve() throws Exception {
-    Main main = new Main(N, DURATION);
-    return main.primes();
+  public Collection<Long> operate() {
+    try {
+      return Networks.operate(size);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Collections.emptyList();
+    }
   }
 
 }

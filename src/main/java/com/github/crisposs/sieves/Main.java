@@ -9,18 +9,13 @@ import java.util.concurrent.Future;
 
 import abs.api.Configuration;
 import abs.api.Context;
-import abs.api.LocalContext;
 
 public class Main {
 
   private final ListCollector collector = new ListCollector();
 
   public Main(Long N, Duration duration) {
-    Thread.setDefaultUncaughtExceptionHandler((thread, x) -> {
-      System.err.println("Thread [" + thread + "]: " + x.getMessage());
-    });
-    Configuration configuration = Configuration.newConfiguration().build();
-    Context context = new LocalContext(configuration);
+    Context context = Configuration.newConfiguration().enableLogging().buildContext();
     Range range = new Range(1L, N, N);
     SieveMaster master = new SieveMaster(range, collector);
     context.newActor("master", master);
@@ -29,7 +24,7 @@ public class Main {
       return true;
     };
     Instant start = Instant.now();
-    Future<Boolean> result = context.send(master, msg);
+    Future<Boolean> result = context.await(master, msg);
     try {
       assert result.get();
       Long lastPrime = master.lastPrime();
@@ -47,7 +42,7 @@ public class Main {
   }
 
   public static void main(String[] args) {
-    Long N = 5000_000L;
+    Long N = 50000000L;
     if (args.length > 0) {
       N = Long.parseLong(args[0]);
     }
