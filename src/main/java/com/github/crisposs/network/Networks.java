@@ -46,7 +46,6 @@ public class Networks {
       Callable<Long> message = () -> network.newToken();
       Response<Long> future = await(network, message);
       Long token = future.getValue();
-      assert token != null;
       return token;
     }
 
@@ -70,13 +69,13 @@ public class Networks {
       this.network = network;
     }
 
-    public List<Long> relay(final int size) {
+    public List<Long> relay(final int size, final boolean await) {
       List<Response<Long>> result = new ArrayList<>();
       for (int i = 1; i <= size; ++i) {
         Packet packet = new Packet(network);
         context().newActor(packet.simpleName(), packet);
         Callable<Long> message = () -> packet.transmit();
-        Response<Long> res = await(packet, message);
+        Response<Long> res = await ? await(packet, message) : send(packet, message);
         result.add(res);
       }
       List<Long> tokens = new ArrayList<>();
@@ -100,16 +99,17 @@ public class Networks {
 
   }
 
-  public static List<Long> operate(final int size) throws Exception {
+  public static List<Long> operate(final int size, final boolean await) throws Exception {
     Context context = Configuration.newConfiguration().buildContext();
     Network network = new Network();
     context.newActor("network", network);
     Gateway gateway = new Gateway(network);
     context.newActor("gateway", gateway);
 
-    Callable<List<Long>> msg = () -> gateway.relay(size);
+    Callable<List<Long>> msg = () -> gateway.relay(size, await);
     Response<List<Long>> res = context.await(gateway, msg);
     List<Long> value = res.getValue();
+    System.out.println("Relays: " + value.size());
     try {
       context.stop();
     } catch (Exception e) {
@@ -118,11 +118,15 @@ public class Networks {
   }
 
   public static void main(String[] args) throws Exception {
-    if (args.length == 0) {
-      Networks.operate(100);
-    } else {
-      Networks.operate(Integer.parseInt(args[0]));
+    int size = 40000;
+    boolean await = true;
+    if (args.length == 1) {
+      size = Integer.parseInt(args[0]);
     }
+    if (args.length == 2) {
+      await = Boolean.parseBoolean(args[1]);
+    }
+    Networks.operate(size, await);
   }
 
 }

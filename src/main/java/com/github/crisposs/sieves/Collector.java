@@ -9,6 +9,10 @@ public interface Collector extends Supplier<Collection<Long>> {
 
   void collect(Long n);
 
+  default boolean contains(Long n) {
+    return get().contains(n);
+  }
+
   default Long last() {
     Collection<Long> s = get();
     if (s.isEmpty()) {

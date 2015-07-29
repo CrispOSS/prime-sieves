@@ -14,17 +14,19 @@ public class SieveMaster implements Sieve {
 
   private final CountDownLatch latch = new CountDownLatch(1);
   private final URI name = URI.create(NS + "master");
-  private final Collector collector;
+  private final Collector primeCollector;
+  private final Collector nonPrimeCollector;
   private final Range range;
   private final List<Range> ranges;
   private final Queue<SieveWorker> workers = new ConcurrentLinkedQueue<>();
 
   public SieveMaster(Range range, Collector collector) {
     this.range = range;
-    this.collector = collector;
+    this.primeCollector = collector;
+    this.nonPrimeCollector = new BitSetCollector();
     this.ranges = breakRange(range);
     for (Range r : ranges) {
-      SieveWorker w = new SieveWorker(r, collector);
+      SieveWorker w = new SieveWorker(r, collector, nonPrimeCollector);
       workers.offer(w);
       context().newActor(w.toString(), w);
     }
@@ -40,19 +42,18 @@ public class SieveMaster implements Sieve {
     Runnable message = () -> {
       w.sieve();
     };
-    send(w, message);
+    await(w, message);
   }
 
   @Override
   public void done(List<Long> nums) {
-    nums.forEach(n -> collector.collect(n));
-    // System.out.println(collector.last());
+    nums.forEach(n -> primeCollector.collect(n));
     sieve();
   }
 
   @Override
   public Long last() {
-    return collector.last();
+    return primeCollector.last();
   }
 
   @Override
@@ -77,7 +78,6 @@ public class SieveMaster implements Sieve {
   private List<Range> breakRange(Range range) {
     final Double order = Double.valueOf(Math.log10(range.to().doubleValue()));
     final int size = range.to().intValue() / (order.intValue() + 1);
-    // System.out.println("bucket size: " + size);
     if (range.to() <= size) {
       return Collections.singletonList(range);
     }
@@ -89,7 +89,7 @@ public class SieveMaster implements Sieve {
       ranges.add(r);
       from = r.to() + 1;
     } while (from < range.to());
-    // System.out.println("ranges: " + ranges.size());
+    System.out.println(ranges);
     return ranges;
   }
 

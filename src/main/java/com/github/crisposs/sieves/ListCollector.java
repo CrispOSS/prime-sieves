@@ -12,9 +12,8 @@ public class ListCollector implements Collector {
 
   @Override
   public void collect(Long n) {
-    if (collection.add(n)) {
-      last.getAndSet(collection.last());
-    }
+    collection.add(n);
+    last.getAndSet(collection.last());
   }
 
   @Override
